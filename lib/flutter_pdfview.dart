@@ -7,17 +7,17 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/rendering.dart';
 
 typedef PDFViewCreatedCallback = void Function(PDFViewController controller);
-typedef RenderCallback = void Function(int? pages);
-typedef PageChangedCallback = void Function(int? page, int? total);
+typedef RenderCallback = void Function(int pages);
+typedef PageChangedCallback = void Function(int page, int total);
 typedef ErrorCallback = void Function(dynamic error);
-typedef PageErrorCallback = void Function(int? page, dynamic error);
-typedef LinkHandlerCallback = void Function(String? uri);
+typedef PageErrorCallback = void Function(int page, dynamic error);
+typedef LinkHandlerCallback = void Function(String uri);
 
 enum FitPolicy { WIDTH, HEIGHT, BOTH }
 
 class PDFView extends StatefulWidget {
   const PDFView({
-    Key? key,
+    Key key,
     this.filePath,
     this.pdfData,
     this.onViewCreated,
@@ -45,22 +45,22 @@ class PDFView extends StatefulWidget {
   _PDFViewState createState() => _PDFViewState();
 
   /// If not null invoked once the PDFView is created.
-  final PDFViewCreatedCallback? onViewCreated;
+  final PDFViewCreatedCallback onViewCreated;
 
   /// Return PDF page count as a parameter
-  final RenderCallback? onRender;
+  final RenderCallback onRender;
 
   /// Return current page and page count as a parameter
-  final PageChangedCallback? onPageChanged;
+  final PageChangedCallback onPageChanged;
 
   /// Invokes on error that handled on native code
-  final ErrorCallback? onError;
+  final ErrorCallback onError;
 
   /// Invokes on page cannot be rendered or something happens
-  final PageErrorCallback? onPageError;
+  final PageErrorCallback onPageError;
 
   /// Used with preventLinkNavigation=true. It's helpful to customize link navigation
-  final LinkHandlerCallback? onLinkHandler;
+  final LinkHandlerCallback onLinkHandler;
 
   /// Which gestures should be consumed by the pdf view.
   ///
@@ -71,13 +71,13 @@ class PDFView extends StatefulWidget {
   ///
   /// When this set is empty or null, the pdf view will only handle pointer events for gestures that
   /// were not claimed by any other gesture recognizer.
-  final Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers;
+  final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
 
   /// The initial URL to load.
-  final String? filePath;
+  final String filePath;
 
   /// The binary data of a PDF document
-  final Uint8List? pdfData;
+  final Uint8List pdfData;
 
   /// Indicates whether or not the user can swipe to change pages in the PDF document. If set to true, swiping is enabled.
   final bool enableSwipe;
@@ -86,7 +86,7 @@ class PDFView extends StatefulWidget {
   final bool swipeHorizontal;
 
   /// Represents the password for a password-protected PDF document. It can be nullable
-  final String? password;
+  final String password;
 
   /// Indicates whether or not the PDF viewer is in night mode. If set to true, the viewer is in night mode
   final bool nightMode;
@@ -169,7 +169,7 @@ class _PDFViewState extends State<PDFView> {
     final PDFViewController controller = PDFViewController._(id, widget);
     _controller.complete(controller);
     if (widget.onViewCreated != null) {
-      widget.onViewCreated!(controller);
+      widget.onViewCreated(controller);
     }
   }
 
@@ -196,10 +196,10 @@ class _CreationParams {
     );
   }
 
-  final String? filePath;
-  final Uint8List? pdfData;
+  final String filePath;
+  final Uint8List pdfData;
 
-  final _PDFViewSettings? settings;
+  final _PDFViewSettings settings;
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> params = {
@@ -207,7 +207,7 @@ class _CreationParams {
       'pdfData': pdfData,
     };
 
-    params.addAll(settings!.toMap());
+    params.addAll(settings.toMap());
 
     return params;
   }
@@ -241,17 +241,17 @@ class _PDFViewSettings {
         preventLinkNavigation: widget.preventLinkNavigation);
   }
 
-  final bool? enableSwipe;
-  final bool? swipeHorizontal;
-  final String? password;
-  final bool? nightMode;
-  final bool? autoSpacing;
-  final bool? pageFling;
-  final bool? pageSnap;
-  final int? defaultPage;
-  final FitPolicy? fitPolicy;
+  final bool enableSwipe;
+  final bool swipeHorizontal;
+  final String password;
+  final bool nightMode;
+  final bool autoSpacing;
+  final bool pageFling;
+  final bool pageSnap;
+  final int defaultPage;
+  final FitPolicy fitPolicy;
   // final bool? fitEachPage;
-  final bool? preventLinkNavigation;
+  final bool preventLinkNavigation;
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -302,36 +302,36 @@ class PDFViewController {
 
   PDFView _widget;
 
-  Future<bool?> _onMethodCall(MethodCall call) async {
+  Future<bool> _onMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'onRender':
         if (_widget.onRender != null) {
-          _widget.onRender!(call.arguments['pages']);
+          _widget.onRender(call.arguments['pages']);
         }
 
         return null;
       case 'onPageChanged':
         if (_widget.onPageChanged != null) {
-          _widget.onPageChanged!(
+          _widget.onPageChanged(
               call.arguments['page'], call.arguments['total']);
         }
 
         return null;
       case 'onError':
         if (_widget.onError != null) {
-          _widget.onError!(call.arguments['error']);
+          _widget.onError(call.arguments['error']);
         }
 
         return null;
       case 'onPageError':
         if (_widget.onPageError != null) {
-          _widget.onPageError!(call.arguments['page'], call.arguments['error']);
+          _widget.onPageError(call.arguments['page'], call.arguments['error']);
         }
 
         return null;
       case 'onLinkHandler':
         if (_widget.onLinkHandler != null) {
-          _widget.onLinkHandler!(call.arguments);
+          _widget.onLinkHandler(call.arguments);
         }
 
         return null;
@@ -340,18 +340,18 @@ class PDFViewController {
         '${call.method} was invoked but has no handler');
   }
 
-  Future<int?> getPageCount() async {
-    final int? pageCount = await _channel.invokeMethod('pageCount');
+  Future<int> getPageCount() async {
+    final int pageCount = await _channel.invokeMethod('pageCount');
     return pageCount;
   }
 
-  Future<int?> getCurrentPage() async {
-    final int? currentPage = await _channel.invokeMethod('currentPage');
+  Future<int> getCurrentPage() async {
+    final int currentPage = await _channel.invokeMethod('currentPage');
     return currentPage;
   }
 
-  Future<bool?> setPage(int page) async {
-    final bool? isSet =
+  Future<bool> setPage(int page) async {
+    final bool isSet =
         await _channel.invokeMethod('setPage', <String, dynamic>{
       'page': page,
     });

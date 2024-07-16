@@ -77,7 +77,7 @@ class PDFView extends StatefulWidget {
   final String filePath;
 
   /// The binary data of a PDF document
-  final Uint8List pdfData;
+  final List<int> pdfData;
 
   /// Indicates whether or not the user can swipe to change pages in the PDF document. If set to true, swiping is enabled.
   final bool enableSwipe;
@@ -197,7 +197,7 @@ class _CreationParams {
   }
 
   final String filePath;
-  final Uint8List pdfData;
+  final List<int> pdfData;
 
   final _PDFViewSettings settings;
 
@@ -298,7 +298,7 @@ class PDFViewController {
 
   final MethodChannel _channel;
 
-  late _PDFViewSettings _settings;
+  _PDFViewSettings _settings;
 
   PDFView _widget;
 
